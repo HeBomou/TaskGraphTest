@@ -26,14 +26,32 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void Init(int32 id, int32 teamId, class ATankManager* manager);
 	
 	void RecoverWeapon();
+
+	void RecoverMove();
+
+	void BeenHit(int32 dmg);
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
 
-	uint32 bCanFire : 1;
+	uint32 m_id;
+
+	uint32 m_teamId;
+
+	class ATankManager* m_manager;
+
+	uint32 m_bCanFire : 1;
+
+	uint32 m_bCanMove : 1;
+
+	int32 m_health;
+
+	FVector m_moveDir;
 
 };

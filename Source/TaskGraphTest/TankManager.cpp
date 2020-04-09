@@ -9,7 +9,7 @@ ATankManager::ATankManager() {
 
     RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("TankManager"));
 
-    bCanSpawn = true;
+    m_bCanSpawn = true;
 }
 
 void ATankManager::BeginPlay() {
@@ -19,21 +19,32 @@ void ATankManager::BeginPlay() {
 void ATankManager::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 
-    if (bCanSpawn) {
+    // Id 计数器 爆int自动循环
+    static int32 idCounter = 0;
+
+    if (m_bCanSpawn) {
         // 生成多个ATankPawn
         UWorld* World = GetWorld();
         if (World) {
             for (int i = 0; i < 10; i++) {
                 float x = FMath::RandRange(-500.0f, 500.0f);
                 float y = FMath::RandRange(-500.0f, 500.0f);
-                World->SpawnActor<ATankPawn>(GetActorLocation() + FVector(x, y, 0), GetActorRotation());
+                ATankPawn* tank = World->SpawnActor<ATankPawn>(GetActorLocation() + FVector(x, y, 0), GetActorRotation());
+                while (m_tankMap.Contains(++idCounter))
+                    ;  // 避免id重复
+                m_tankMap.Add(idCounter, tank);
+                tank->Init(idCounter, FMath::RandRange(1, 3), this);
             }
         }
-        bCanSpawn = false;
+        m_bCanSpawn = false;
         World->GetTimerManager().SetTimer(TimerHandle_LifeSpanExpired, this, &ATankManager::RecoverSpawn, 10);
     }
 }
 
 void ATankManager::RecoverSpawn() {
-    bCanSpawn = true;
+    m_bCanSpawn = true;
+}
+
+void ATankManager::TankDead(int32 id) {
+    m_tankMap.Remove(id);
 }

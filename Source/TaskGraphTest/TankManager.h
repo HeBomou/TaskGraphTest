@@ -5,22 +5,27 @@
 #include "TankManager.generated.h"
 
 UCLASS()
-class TASKGRAPHTEST_API ATankManager : public AActor
-{
-	GENERATED_BODY()
-	
-public:	
-	ATankManager();
+class TASKGRAPHTEST_API ATankManager : public AActor {
+    GENERATED_BODY()
 
-protected:
-	virtual void BeginPlay() override;
+   public:
+    ATankManager();
+	static ATankManager* GetInstance();
 
-public:
-	virtual void Tick(float DeltaTime) override;
+   protected:
+    virtual void BeginPlay() override;
 
-	void RecoverSpawn();
+   public:
+    virtual void Tick(float DeltaTime) override;
 
-private:
-	bool bCanSpawn;
+    void RecoverSpawn();
+
+	void TankDead(int32 id);
+
+   private:
+    bool m_bCanSpawn;
+
+	TMap<int32, class ATankPawn*> m_tankMap;
+
 
 };
