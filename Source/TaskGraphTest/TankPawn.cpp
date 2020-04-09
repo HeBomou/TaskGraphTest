@@ -8,9 +8,6 @@
 
 // Sets default values
 ATankPawn::ATankPawn() {
-    // Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-    PrimaryActorTick.bCanEverTick = true;
-
     // Mesh
     static ConstructorHelpers::FObjectFinder<UStaticMesh> TankMesh(TEXT("/Game/TwinStick/Meshes/TwinStickUFO.TwinStickUFO"));
     TankMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankMesh"));
@@ -33,9 +30,8 @@ void ATankPawn::Tick(float DeltaTime) {
 
     if (bCanFire) {
         UWorld* World = GetWorld();
-        if (World) {
+        if (World)
             World->SpawnActor<ATaskGraphTestProjectile>(GetActorLocation() + FVector(90.0f, 0, 0), GetActorRotation());
-        }
         bCanFire = false;
         World->GetTimerManager().SetTimer(TimerHandle_LifeSpanExpired, this, &ATankPawn::RecoverWeapon, 0.3f);
     }
