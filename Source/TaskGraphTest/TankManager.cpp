@@ -35,9 +35,10 @@ void ATankManager::Tick(float DeltaTime) {
                 m_tankMap.Add(idCounter, tank);
                 tank->Init(idCounter, FMath::RandRange(1, 3), this);
             }
+            m_bCanSpawn = false;
+            // TODO: 问题在这里
+            World->GetTimerManager().SetTimer(TimerHandle_LifeSpanExpired, this, &ATankManager::RecoverSpawn, 10);
         }
-        m_bCanSpawn = false;
-        World->GetTimerManager().SetTimer(TimerHandle_LifeSpanExpired, this, &ATankManager::RecoverSpawn, 10);
     }
 }
 

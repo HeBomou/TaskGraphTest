@@ -41,8 +41,8 @@ void ATankPawn::Tick(float DeltaTime) {
     if (m_bCanMove) {
         UWorld* World = GetWorld();
         if (World) {
-            m_bCanMove = false;
             m_moveDir = FVector(FMath::RandRange(-1.0f, 1.0f), FMath::RandRange(-1.0f, 1.0f), 0.0f).GetSafeNormal();
+            m_bCanMove = false;
             World->GetTimerManager().SetTimer(TimerHandle_LifeSpanExpired, this, &ATankPawn::RecoverMove, 2.0f);
         }
     }
