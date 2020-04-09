@@ -1,0 +1,8 @@
+{
+	"files.exclude": {
+		"/Users/hebo/Workspace/Unreal/TaskGraphTest/.vscode": true,
+		"/Users/hebo/Workspace/Unreal/TaskGraphTest/Content": true,
+		"/Users/hebo/Workspace/Unreal/TaskGraphTest/Intermediate": true,
+		"/Users/hebo/Workspace/Unreal/TaskGraphTest/Saved": true
+	}
+}
