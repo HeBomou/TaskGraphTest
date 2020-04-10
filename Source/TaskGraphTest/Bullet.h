@@ -15,10 +15,10 @@ class TASKGRAPHTEST_API ABullet : public AActor
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile, meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* BulletMesh;
+	UStaticMeshComponent* m_bulletMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-	UProjectileMovementComponent* BulletMovement;
+	UProjectileMovementComponent* m_bulletMovement;
 	
 public:	
 	ABullet();

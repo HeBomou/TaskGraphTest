@@ -3,17 +3,17 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/CollisionProfile.h"
 #include "TankManager.h"
-#include "TaskGraphTestProjectile.h"
+#include "Bullet.h"
 #include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 
 ATankPawn::ATankPawn() {
     // Mesh
     static ConstructorHelpers::FObjectFinder<UStaticMesh> TankMesh(TEXT("/Game/TwinStick/Meshes/TwinStickUFO.TwinStickUFO"));
-    TankMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankMesh"));
-    RootComponent = TankMeshComponent;
-    TankMeshComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
-    TankMeshComponent->SetStaticMesh(TankMesh.Object);
+    m_tankMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankMesh"));
+    RootComponent = m_tankMeshComponent;
+    m_tankMeshComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
+    m_tankMeshComponent->SetStaticMesh(TankMesh.Object);
 }
 
 void ATankPawn::Tick(float DeltaTime) {
@@ -24,17 +24,17 @@ void ATankPawn::Tick(float DeltaTime) {
         m_fireTimer += 0.5f;
         UWorld* World = GetWorld();
         if (World) {  // TODO: 寻找敌人并决定方向
-            World->SpawnActor<ATaskGraphTestProjectile>(GetActorLocation() + GetActorRotation().Vector() * 90.0f, GetActorRotation());
+            World->SpawnActor<ABullet>(GetActorLocation() + GetActorRotation().Vector() * 90.f, GetActorRotation());
         }
     }
 
     m_moveTimer -= DeltaTime;
     if (m_moveTimer <= 0) {
-        m_moveTimer += 3.0f;
-        m_moveDir = FVector(FMath::RandRange(-1.0f, 1.0f), FMath::RandRange(-1.0f, 1.0f), 0.0f).GetSafeNormal();
+        m_moveTimer += 3.f;
+        m_moveDir = FVector(FMath::RandRange(-1.f, 1.f), FMath::RandRange(-1.f, 1.f), 0.f).GetSafeNormal();
     }
 
-    if (m_moveDir.SizeSquared2D() > 0.0f) {
+    if (m_moveDir.SizeSquared2D() > 0.f) {
         const FRotator NewRotation = m_moveDir.Rotation();
         FHitResult Hit(1.f);
         RootComponent->MoveComponent(m_moveDir, NewRotation, true, &Hit);

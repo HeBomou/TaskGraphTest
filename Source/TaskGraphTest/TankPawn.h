@@ -15,7 +15,7 @@ class TASKGRAPHTEST_API ATankPawn : public APawn
 
 	// Mesh
 	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* TankMeshComponent;
+	class UStaticMeshComponent* m_tankMeshComponent;
 
 public:
 	ATankPawn();

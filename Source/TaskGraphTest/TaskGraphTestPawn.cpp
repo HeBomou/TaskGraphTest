@@ -1,7 +1,7 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 #include "TaskGraphTestPawn.h"
-#include "TaskGraphTestProjectile.h"
+#include "Bullet.h"
 #include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
@@ -45,7 +45,7 @@ ATaskGraphTestPawn::ATaskGraphTestPawn()
 	CameraComponent->bUsePawnControlRotation = false;	// Camera does not rotate relative to arm
 
 	// Movement
-	MoveSpeed = 1000.0f;
+	MoveSpeed = 1000.f;
 	// Weapon
 	GunOffset = FVector(90.f, 0.f, 0.f);
 	FireRate = 0.1f;
@@ -70,13 +70,13 @@ void ATaskGraphTestPawn::Tick(float DeltaSeconds)
 	const float RightValue = GetInputAxisValue(MoveRightBinding);
 
 	// Clamp max size so that (X=1, Y=1) doesn't cause faster movement in diagonal directions
-	const FVector MoveDirection = FVector(ForwardValue, RightValue, 0.f).GetClampedToMaxSize(1.0f);
+	const FVector MoveDirection = FVector(ForwardValue, RightValue, 0.f).GetClampedToMaxSize(1.f);
 
 	// Calculate  movement
 	const FVector Movement = MoveDirection * MoveSpeed * DeltaSeconds;
 
 	// If non-zero size, move this actor
-	if (Movement.SizeSquared() > 0.0f)
+	if (Movement.SizeSquared() > 0.f)
 	{
 		const FRotator NewRotation = Movement.Rotation();
 		FHitResult Hit(1.f);
@@ -105,7 +105,7 @@ void ATaskGraphTestPawn::FireShot(FVector FireDirection)
 	if (bCanFire == true)
 	{
 		// If we are pressing fire stick in a direction
-		if (FireDirection.SizeSquared() > 0.0f)
+		if (FireDirection.SizeSquared() > 0.f)
 		{
 			const FRotator FireRotation = FireDirection.Rotation();
 			// Spawn projectile at an offset from this pawn
@@ -115,7 +115,7 @@ void ATaskGraphTestPawn::FireShot(FVector FireDirection)
 			if (World != NULL)
 			{
 				// spawn the projectile
-				World->SpawnActor<ATaskGraphTestProjectile>(SpawnLocation, FireRotation);
+				World->SpawnActor<ABullet>(SpawnLocation, FireRotation);
 			}
 
 			bCanFire = false;

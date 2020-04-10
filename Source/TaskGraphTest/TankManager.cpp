@@ -22,8 +22,8 @@ void ATankManager::Tick(float DeltaTime) {
         UWorld* World = GetWorld();
         if (World) {
             for (int i = 0; i < 5; i++) {
-                float x = FMath::RandRange(-500.0f, 500.0f);
-                float y = FMath::RandRange(-500.0f, 500.0f);
+                float x = FMath::RandRange(-500.f, 500.f);
+                float y = FMath::RandRange(-500.f, 500.f);
                 ATankPawn* tank = World->SpawnActor<ATankPawn>(GetActorLocation() + FVector(x, y, 0), GetActorRotation());
                 while (m_tankMap.Contains(++m_idCounter))
                     ;  // 避免id重复
