@@ -12,9 +12,6 @@ class TASKGRAPHTEST_API ATankManager : public AActor {
     ATankManager();
 	static ATankManager* GetInstance();
 
-   protected:
-    virtual void BeginPlay() override;
-
    public:
     virtual void Tick(float DeltaTime) override;
 

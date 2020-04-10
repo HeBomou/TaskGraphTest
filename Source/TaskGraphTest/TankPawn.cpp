@@ -16,10 +16,6 @@ ATankPawn::ATankPawn() {
     TankMeshComponent->SetStaticMesh(TankMesh.Object);
 }
 
-void ATankPawn::BeginPlay() {
-    Super::BeginPlay();
-}
-
 void ATankPawn::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 
@@ -51,18 +47,14 @@ void ATankPawn::Tick(float DeltaTime) {
     }
 }
 
-void ATankPawn::Init(int32 id, int32 teamId) {
+void ATankPawn::Init(int32 id, int32 teamId, ATankManager* manager) {
     m_id = id;
     m_teamId = teamId;
-    // m_manager = manager;
+    m_manager = manager;
 }
 
 void ATankPawn::BeenHit(int32 dmg) {
     m_health -= dmg;
-    // m_manager->TankDead(m_id);
+    m_manager->TankDead(m_id);
 }
 
-// Called to bind functionality to input
-void ATankPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
-}

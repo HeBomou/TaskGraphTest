@@ -16,18 +16,12 @@ class TASKGRAPHTEST_API ATankPawn : public APawn
 	class UStaticMeshComponent* TankMeshComponent;
 
 public:
-	// Sets default values for this pawn's properties
 	ATankPawn();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void Init(int32 id, int32 teamId);
+	void Init(int32 id, int32 teamId, class ATankManager* manager);
 	
 	void RecoverWeapon();
 
@@ -35,16 +29,13 @@ public:
 
 	void BeenHit(int32 dmg);
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 private:
 
 	uint32 m_id;
 
 	uint32 m_teamId;
 
-	// class ATankManager* m_manager;
+	class ATankManager* m_manager;
 
 	int32 m_health;
 
