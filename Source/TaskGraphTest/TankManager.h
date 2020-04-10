@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "TankManager.generated.h"
 
+class ATankPawn;
+
 UCLASS()
 class TASKGRAPHTEST_API ATankManager : public AActor {
     GENERATED_BODY()
@@ -24,7 +26,7 @@ class TASKGRAPHTEST_API ATankManager : public AActor {
 
     int32 m_idCounter;
 
-	TMap<int32, class ATankPawn*> m_tankMap;
+	TMap<int32, ATankPawn*> m_tankMap;
 
 
 };

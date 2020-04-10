@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "TankPawn.generated.h"
 
+class ATankManager;
+
 UCLASS()
 class TASKGRAPHTEST_API ATankPawn : public APawn
 {
@@ -21,7 +23,7 @@ public:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-	void Init(int32 id, int32 teamId, class ATankManager* manager);
+	void Init(int32 id, int32 teamId, ATankManager* manager);
 	
 	void RecoverWeapon();
 
@@ -35,7 +37,7 @@ private:
 
 	uint32 m_teamId;
 
-	class ATankManager* m_manager;
+	ATankManager* m_manager;
 
 	int32 m_health;
 

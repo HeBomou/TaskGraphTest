@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "Bullet.generated.h"
 
+class UProjectileMovementComponent;
+class UStaticMeshComponent;
+
 UCLASS()
 class TASKGRAPHTEST_API ABullet : public AActor
 {
