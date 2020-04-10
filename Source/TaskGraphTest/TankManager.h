@@ -25,6 +25,8 @@ class TASKGRAPHTEST_API ATankManager : public AActor {
    private:
     bool m_bCanSpawn;
 
+    int32 m_idCounter;
+
 	TMap<int32, class ATankPawn*> m_tankMap;
 
 

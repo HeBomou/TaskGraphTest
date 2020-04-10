@@ -27,7 +27,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void Init(int32 id, int32 teamId, class ATankManager* manager);
+	void Init(int32 id, int32 teamId);
 	
 	void RecoverWeapon();
 
@@ -44,13 +44,13 @@ private:
 
 	uint32 m_teamId;
 
-	class ATankManager* m_manager;
-
-	uint32 m_bCanFire : 1;
-
-	uint32 m_bCanMove : 1;
+	// class ATankManager* m_manager;
 
 	int32 m_health;
+
+	float m_fireTimer;
+
+	float m_moveTimer;
 
 	FVector m_moveDir;
 
