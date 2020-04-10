@@ -14,6 +14,8 @@ ATankPawn::ATankPawn() {
     RootComponent = m_tankMeshComponent;
     m_tankMeshComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
     m_tankMeshComponent->SetStaticMesh(TankMesh.Object);
+
+    m_health = 100.f;
 }
 
 void ATankPawn::Tick(float DeltaTime) {
@@ -45,16 +47,18 @@ void ATankPawn::Tick(float DeltaTime) {
             RootComponent->MoveComponent(Deflection, NewRotation, true);
         }
     }
+    if (m_health <= 0.f)
+        Destroy();
 }
 
-void ATankPawn::Init(int32 id, int32 teamId, ATankManager* manager) {
-    m_id = id;
-    m_teamId = teamId;
-    m_manager = manager;
+float ATankPawn::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) {
+    m_health -= DamageAmount;
+    return DamageAmount;
 }
 
-void ATankPawn::BeenHit(int32 dmg) {
-    m_health -= dmg;
-    m_manager->TankDead(m_id);
-}
 
+// void ATankPawn::Init(int32 id, int32 teamId, ATankManager* manager) {
+//     m_id = id;
+//     m_teamId = teamId;
+//     m_manager = manager;
+// }

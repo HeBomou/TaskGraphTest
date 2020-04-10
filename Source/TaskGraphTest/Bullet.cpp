@@ -15,7 +15,7 @@ ABullet::ABullet()
 	m_bulletMesh->SetStaticMesh(bulletMesh.Object);
 	m_bulletMesh->SetupAttachment(RootComponent);
 	m_bulletMesh->BodyInstance.SetCollisionProfileName("Bullet");
-	// m_bulletMesh->OnComponentHit.AddDynamic(this, &ABullet::OnHit); // 碰撞事件
+	m_bulletMesh->OnComponentHit.AddDynamic(this, &ABullet::OnHit); // 碰撞事件
 
 	// 子弹
 	m_bulletMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("BulletMovement0"));
@@ -32,11 +32,10 @@ ABullet::ABullet()
 
 void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	// // Only add impulse and destroy projectile if we hit a physics
-	// if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
-	// {
-	// 	OtherComp->AddImpulseAtLocation(GetVelocity() * 20.f, GetActorLocation());
-	// }
-
+	UE_LOG(LogTemp, Warning, TEXT("cnm"));
+	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
+	{
+		OtherActor->TakeDamage(12.f, FDamageEvent(), NULL, NULL);
+	}
 	Destroy();
 }

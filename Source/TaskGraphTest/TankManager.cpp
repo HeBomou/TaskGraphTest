@@ -28,7 +28,7 @@ void ATankManager::Tick(float DeltaTime) {
                 while (m_tankMap.Contains(++m_idCounter))
                     ;  // 避免id重复
                 m_tankMap.Add(m_idCounter, tank);
-                tank->Init(m_idCounter, FMath::RandRange(1, 3), this);
+                // tank->Init(m_idCounter, FMath::RandRange(1, 3), this);
             }
             m_bCanSpawn = false;
             World->GetTimerManager().SetTimer(TimerHandle_LifeSpanExpired, this, &ATankManager::RecoverSpawn, 10);

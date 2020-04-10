@@ -23,13 +23,9 @@ public:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-	void Init(int32 id, int32 teamId, ATankManager* manager);
-	
-	void RecoverWeapon();
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 
-	void RecoverMove();
-
-	void BeenHit(int32 dmg);
+	// void Init(int32 id, int32 teamId, ATankManager* manager);
 
 private:
 
@@ -39,7 +35,7 @@ private:
 
 	ATankManager* m_manager;
 
-	int32 m_health;
+	float m_health;
 
 	float m_fireTimer;
 
