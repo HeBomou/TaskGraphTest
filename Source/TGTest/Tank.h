@@ -12,11 +12,10 @@ class TGTEST_API ATank : public APawn
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* m_tankMesh;
+	UStaticMeshComponent *m_tankMesh;
 
 public:
 	ATank();
-
 
 public:
 	virtual void Tick(float DeltaTime) override;

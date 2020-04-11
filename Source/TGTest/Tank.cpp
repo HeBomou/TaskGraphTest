@@ -12,13 +12,13 @@ ATank::ATank()
 {
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> tankMesh(TEXT("/Game/TwinStick/Meshes/TwinStickUFO.TwinStickUFO"));
 
-	// Íø¸ñ×é¼þ
+	// Mesh Component
 	m_tankMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankMesh0"));
 	RootComponent = m_tankMesh;
 	m_tankMesh->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
 	m_tankMesh->SetStaticMesh(tankMesh.Object);
 
-	// Éä»÷¼ä¸ô
+	// Shoot Recover
 	m_shootRecoverTime = 0.3f;
 	m_shootTimer = 0;
 }
@@ -26,18 +26,20 @@ ATank::ATank()
 void ATank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// TODO: Ñ°ÕÒÄ¿±ê
+	// TODO: Ñ°ï¿½ï¿½Ä¿ï¿½ï¿½
 
 	TryShoot(GetActorForwardVector(), DeltaTime);
 }
 
 void ATank::TryShoot(FVector shootDir, float dT)
 {
-	if (m_shootTimer < 0) {
+	if (m_shootTimer < 0)
+	{
 		m_shootTimer += m_shootRecoverTime;
-		UWorld* world = GetWorld();
+		UWorld *world = GetWorld();
 		if (world)
 			world->SpawnActor<ABullet>(GetActorLocation() + shootDir * 90.f, shootDir.Rotation());
 	}
-	else m_shootTimer -= dT;
+	else
+		m_shootTimer -= dT;
 }
