@@ -26,7 +26,7 @@ ATank::ATank()
 void ATank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// TODO: Ѱ��Ŀ��
+	// TODO: To search an enemy
 
 	TryShoot(GetActorForwardVector(), DeltaTime);
 }
