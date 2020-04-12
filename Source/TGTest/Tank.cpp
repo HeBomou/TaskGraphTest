@@ -1,45 +1,75 @@
 #include "Tank.h"
 
+#include "Bullet.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/CollisionProfile.h"
 #include "Engine/StaticMesh.h"
-#include "Components/StaticMeshComponent.h"
-#include "UObject/ConstructorHelpers.h"
+#include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+#include "UObject/ConstructorHelpers.h"
 
-#include "Bullet.h"
+ATank::ATank() {
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> tankMesh(TEXT("/Game/TwinStick/Meshes/TwinStickUFO.TwinStickUFO"));
 
-ATank::ATank()
-{
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> tankMesh(TEXT("/Game/TwinStick/Meshes/TwinStickUFO.TwinStickUFO"));
+    // Mesh Component
+    m_tankMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankMesh0"));
+    RootComponent = m_tankMesh;
+    m_tankMesh->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
+    m_tankMesh->SetStaticMesh(tankMesh.Object);
 
-	// Mesh Component
-	m_tankMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankMesh0"));
-	RootComponent = m_tankMesh;
-	m_tankMesh->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
-	m_tankMesh->SetStaticMesh(tankMesh.Object);
+    // Team
+    m_teamId = FMath::RandRange(1, 3);
 
-	// Shoot Recover
-	m_shootRecoverTime = 0.3f;
-	m_shootTimer = 0;
+    // Move Recover
+    m_moveRecoverTime = 3.f;
+    m_moveTimer = FMath::RandRange(0.f, 3.f);
+
+    // Shoot Recover
+    m_shootRecoverTime = 0.3f;
+    m_shootTimer = 0.3f;
 }
 
-void ATank::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	// TODO: To search an enemy
+void ATank::Tick(float DeltaTime) {
+    Super::Tick(DeltaTime);
 
-	TryShoot(GetActorForwardVector(), DeltaTime);
+    UWorld *world = GetWorld();
+    if (!world)
+        return;
+
+    TArray<AActor *> tanks;
+    UGameplayStatics::GetAllActorsOfClass(world, ATank::StaticClass(), tanks);
+
+    AActor *enemy = NULL;
+    for (AActor *tank : tanks)
+        if (((ATank *)tank)->m_teamId != m_teamId) {
+            enemy = tank;
+            break;
+        }
+    FVector moveDir(0), shootDir;
+    if (enemy)
+        moveDir = shootDir = (enemy->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+    else {
+        shootDir = GetActorForwardVector();
+        while (moveDir.SizeSquared() == 0)
+            moveDir = FVector(FMath::RandPointInCircle(1).GetSafeNormal(), 0);
+    }
+
+    TryMove(moveDir, DeltaTime);
+    TryShoot(shootDir, DeltaTime, world);
 }
 
-void ATank::TryShoot(FVector shootDir, float dT)
-{
-	if (m_shootTimer < 0)
-	{
-		m_shootTimer += m_shootRecoverTime;
-		UWorld *world = GetWorld();
-		if (world)
-			world->SpawnActor<ABullet>(GetActorLocation() + shootDir * 90.f, shootDir.Rotation());
-	}
-	else
-		m_shootTimer -= dT;
+void ATank::TryMove(FVector moveDir, float dT) {
+    if (m_moveTimer < 0) {
+        m_moveTimer += m_moveRecoverTime;
+        // TODO:
+    } else
+        m_moveTimer -= dT;
+}
+
+void ATank::TryShoot(FVector shootDir, float dT, UWorld *world) {
+    if (m_shootTimer < 0) {
+        m_shootTimer += m_shootRecoverTime;
+        world->SpawnActor<ABullet>(GetActorLocation() + shootDir * 90.f, shootDir.Rotation());
+    } else
+        m_shootTimer -= dT;
 }
