@@ -45,12 +45,14 @@ void ATank::Tick(float DeltaTime) {
     TArray<AActor *> tanks;
     UGameplayStatics::GetAllActorsOfClass(world, ATank::StaticClass(), tanks);
 
+    // Find the nearest enemy
     AActor *enemy = NULL;
-    for (AActor *tank : tanks)
-        if (((ATank *)tank)->m_teamId != m_teamId) {
-            enemy = tank;
-            break;
-        }
+    float mnDis = FLT_MAX;
+    for (AActor *tank : tanks) {
+        auto dis = (tank->GetActorLocation() - GetActorLocation()).SizeSquared();
+        if (((ATank *)tank)->m_teamId != m_teamId && dis < mnDis)
+            enemy = tank, mnDis = dis;
+    }
     FVector moveDir(0), shootDir;
     if (enemy)
         moveDir = shootDir = (enemy->GetActorLocation() - GetActorLocation()).GetSafeNormal();
