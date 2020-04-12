@@ -20,6 +20,9 @@ ATank::ATank() {
     // Team
     m_teamId = FMath::RandRange(1, 3);
 
+    // Health
+    m_health = 100;
+
     // Move Recover
     m_moveRecoverTime = 3.f;
     m_moveTimer = FMath::RandRange(0.f, 3.f);
@@ -31,6 +34,9 @@ ATank::ATank() {
 
 void ATank::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
+
+    if (m_health <= 0)
+        Destroy();
 
     UWorld *world = GetWorld();
     if (!world)
@@ -58,6 +64,11 @@ void ATank::Tick(float DeltaTime) {
     TryShoot(shootDir, DeltaTime, world);
 }
 
+float ATank::TakeDamage(float DamageAmount, FDamageEvent const &DamageEvent, AController *EventInstigator, AActor *DamageCauser) {
+    m_health -= DamageAmount;
+    return DamageAmount;
+}
+
 void ATank::TryMove(FVector moveDir, float dT) {
     if (m_moveTimer < 0)
         m_moveTimer += m_moveRecoverTime, m_moveDir = moveDir, m_moveRot = moveDir.Rotation();
@@ -77,7 +88,7 @@ void ATank::TryMove(FVector moveDir, float dT) {
 void ATank::TryShoot(FVector shootDir, float dT, UWorld *world) {
     if (m_shootTimer < 0) {
         m_shootTimer += m_shootRecoverTime;
-        world->SpawnActor<ABullet>(GetActorLocation() + shootDir * 90.f, shootDir.Rotation());
+        world->SpawnActor<ABullet>(GetActorLocation() + shootDir * 80.f, shootDir.Rotation());
     } else
         m_shootTimer -= dT;
 }
