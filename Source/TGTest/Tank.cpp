@@ -59,11 +59,19 @@ void ATank::Tick(float DeltaTime) {
 }
 
 void ATank::TryMove(FVector moveDir, float dT) {
-    if (m_moveTimer < 0) {
-        m_moveTimer += m_moveRecoverTime;
-        // TODO:
-    } else
+    if (m_moveTimer < 0)
+        m_moveTimer += m_moveRecoverTime, m_moveDir = moveDir, m_moveRot = moveDir.Rotation();
+    else
         m_moveTimer -= dT;
+
+    FHitResult Hit(1.f);
+    RootComponent->MoveComponent(m_moveDir, m_moveRot, true, &Hit);
+
+    if (Hit.IsValidBlockingHit()) {
+        const FVector Normal2D = Hit.Normal.GetSafeNormal2D();
+        const FVector Deflection = FVector::VectorPlaneProject(m_moveDir, Normal2D) * (1.f - Hit.Time);
+        RootComponent->MoveComponent(Deflection, m_moveRot, true);
+    }
 }
 
 void ATank::TryShoot(FVector shootDir, float dT, UWorld *world) {

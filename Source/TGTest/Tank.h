@@ -24,6 +24,8 @@ class TGTEST_API ATank : public APawn {
     uint32 m_teamId;
     float m_moveRecoverTime;
     float m_moveTimer;
+	FVector m_moveDir;
+	FRotator m_moveRot;
     float m_shootRecoverTime;
     float m_shootTimer;
     inline void TryMove(FVector moveDir, float dT);
