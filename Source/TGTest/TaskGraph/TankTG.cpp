@@ -17,6 +17,9 @@ ATankTG::ATankTG() {
 
     // Team
     m_teamId = FMath::RandRange(1, 3);
+
+    // Health
+    m_health = 100;
 }
 
 float ATankTG::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) {
