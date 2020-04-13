@@ -20,6 +20,14 @@ ATankTG::ATankTG() {
 
     // Health
     m_health = 100;
+
+    // Move Recover
+    m_moveRecoverTime = 3.f;
+    m_moveTimer = FMath::RandRange(0.f, 3.f);
+
+    // Shoot Recover
+    m_shootRecoverTime = 0.3f;
+    m_shootTimer = 0.3f;
 }
 
 float ATankTG::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) {
