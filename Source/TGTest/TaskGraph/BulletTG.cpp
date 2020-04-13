@@ -10,14 +10,14 @@ ABulletTG::ABulletTG()
     static ConstructorHelpers::FObjectFinder<UStaticMesh> bulletMesh(TEXT("/Game/TwinStick/Meshes/TwinStickProjectile.TwinStickProjectile"));
 
     // Mesh
-    m_bulletMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BulletMesh0"));
+    m_bulletMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BulletTGMesh0"));
     RootComponent = m_bulletMesh;
     m_bulletMesh->SetStaticMesh(bulletMesh.Object);
-    m_bulletMesh->BodyInstance.SetCollisionProfileName("Bullet");
-    m_bulletMesh->OnComponentHit.AddDynamic(this, &ABullet::OnHit);
+    m_bulletMesh->BodyInstance.SetCollisionProfileName("BulletTG");
+    m_bulletMesh->OnComponentHit.AddDynamic(this, &ABulletTG::OnHit);
 
     // Bullet Movement
-    m_bulletMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("BulletMovement0"));
+    m_bulletMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("BulletTGMovement0"));
     m_bulletMovement->UpdatedComponent = m_bulletMesh;
     m_bulletMovement->InitialSpeed = 1500.f;
     m_bulletMovement->MaxSpeed = 1500.f;
