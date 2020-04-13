@@ -31,7 +31,7 @@ void ATankManagerTG::Tick(float DeltaTime) {
 
     // Tanks
     TArray<ATankTG*> tanks;
-    for (auto it = m_tanks.CreateIterator(); it; it++)
+    for (auto it = m_tanks.CreateIterator(); it; ++it)
         tanks.Add(*it);
 
     TArray<FVector> shootDirs;
@@ -78,12 +78,12 @@ void ATankManagerTG::Tick(float DeltaTime) {
 
     // Kill Tanks
     TArray<ATankTG*> tanksToRemove;
-    for (auto it = m_tanks.CreateIterator(); it; it++) {
+    for (auto it = m_tanks.CreateIterator(); it; ++it) {
         if ((*it)->m_health <= 0)
             tanksToRemove.Add(*it);
     }
-    for (auto it = tanksToRemove.CreateIterator(); it; it++) {
-        (*it)->Destroy();
-        m_tanks.Remove(*it);
+    for (int i = 0; i < tanksToRemove.Num(); i++) {
+        tanksToRemove[i]->Destroy();
+        m_tanks.Remove(tanksToRemove[i]);
     }
 }
