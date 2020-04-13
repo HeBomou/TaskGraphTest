@@ -1,5 +1,6 @@
 #include "TankManagerTG.h"
 
+#include "Async/ParallelFor.h"
 #include "BulletTG.h"
 #include "Engine/World.h"
 #include "TankTG.h"
@@ -30,8 +31,7 @@ void ATankManagerTG::Tick(float DeltaTime) {
     TArray<FVector> moveDirs;
     shootDirs.Init(FVector(), tanks.Num());
     moveDirs.Init(FVector(), tanks.Num());
-    // TODO: Find nearest tank with ParallelFor
-    for (int32 i = 0; i < tanks.Num(); i++) {
+    ParallelFor(tanks.Num(), [&tanks, &shootDirs, &moveDirs](int32 i) {
         ATankTG* enemy = NULL;
         float mnDis = FLT_MAX;
         for (int32 j = 0; j < tanks.Num(); j++) {
@@ -47,7 +47,7 @@ void ATankManagerTG::Tick(float DeltaTime) {
             while (moveDirs[i].SizeSquared() == 0)
                 moveDirs[i] = FVector(FMath::RandPointInCircle(1).GetSafeNormal(), 0);
         }
-    }
+    });
 
     for (int i = 0; i < tanks.Num(); i++) {
         auto tank = tanks[i];
@@ -60,7 +60,7 @@ void ATankManagerTG::Tick(float DeltaTime) {
         tank->Move();
 
         // Shoot
-    	auto shootDir = shootDirs[i];
+        auto shootDir = shootDirs[i];
         if (tank->m_shootTimer < 0) {
             tank->m_shootTimer += tank->m_shootRecoverTime;
             world->SpawnActor<ABulletTG>(tank->GetActorLocation() + shootDir * 80.f, shootDir.Rotation());
