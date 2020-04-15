@@ -20,12 +20,6 @@ ATankManagerTG::ATankManagerTG() {
 void ATankManagerTG::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 
-#if WITH_IMGUI
-    ImGui::NewFrame();
-    ImGui::Button("cnmsdfsdfdsfsdfsdffsdf");
-    ImGui::Render();
-#endif
-
     UWorld* world = GetWorld();
     if (!world) return;
 
@@ -96,9 +90,10 @@ void ATankManagerTG::Tick(float DeltaTime) {
     if (m_spawnTimer < 0) {
         m_spawnTimer += m_spawnRecoverTime;
         for (uint32 i = 0; i < 40; i++) {
-            auto tank = world->SpawnActor<ATankTG>(FVector(FMath::RandPointInCircle(1500), 0) + GetActorLocation(), FRotator());
-            if (tank)
-                m_tanks.Add(tank);
+            // TODO:
+            // auto tank = world->SpawnActor<ATankTG>(FVector(FMath::RandPointInCircle(1500), 0) + GetActorLocation(), FRotator());
+            // if (tank)
+            //     m_tanks.Add(tank);
         }
     } else
         m_spawnTimer -= DeltaTime;

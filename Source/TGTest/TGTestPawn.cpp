@@ -13,6 +13,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 
+#include "ImGuiCommon.h"
+
 const FName ATGTestPawn::MoveForwardBinding("MoveForward");
 const FName ATGTestPawn::MoveRightBinding("MoveRight");
 const FName ATGTestPawn::FireForwardBinding("FireForward");
@@ -65,6 +67,19 @@ void ATGTestPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 
 void ATGTestPawn::Tick(float DeltaSeconds)
 {
+
+#ifdef WITH_IMGUI
+	UE_LOG(LogTemp, Warning, TEXT("Cnmdb"));
+    ImGui::Begin("sdfsdfds");
+    ImGui::Button("cnmsdfsdfdsfsdfsdffsdf");
+    ImGui::Button("cnmsdfsdfdsfsdfsdffsdf");
+    ImGui::Button("cnmsdfsdfdsfsdfsdffsdf");
+    ImGui::Button("cnmsdfsdfdsfsdfsdffsdf");
+    ImGui::Button("cnmsdfsdfdsfsdfsdffsdf");
+	ImGui::Text("fdsfsdfdsf");
+    ImGui::End();
+#endif
+
 	// Find movement direction
 	const float ForwardValue = GetInputAxisValue(MoveForwardBinding);
 	const float RightValue = GetInputAxisValue(MoveRightBinding);

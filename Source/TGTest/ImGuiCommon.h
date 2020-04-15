@@ -4,8 +4,8 @@
 #define WITH_IMGUI 1
 #else
 #define WITH_IMGUI 0
-#endif // IMGUI_API
+#endif  // IMGUI_API
 
-#if WITH_IMGUI
+#ifdef WITH_IMGUI
 #include <imgui.h>
-#endif // WITH_IMGUI
+#endif  // WITH_IMGUI
