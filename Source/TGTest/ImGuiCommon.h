@@ -6,6 +6,6 @@
 #define WITH_IMGUI 0
 #endif  // IMGUI_API
 
-#ifdef WITH_IMGUI
+#if WITH_IMGUI
 #include <imgui.h>
 #endif  // WITH_IMGUI

@@ -68,7 +68,7 @@ void ATGTestPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
 void ATGTestPawn::Tick(float DeltaSeconds)
 {
 
-#ifdef WITH_IMGUI
+#if WITH_IMGUI
 	UE_LOG(LogTemp, Warning, TEXT("Cnmdb"));
     ImGui::Begin("sdfsdfds");
     ImGui::Button("cnmsdfsdfdsfsdfsdffsdf");
