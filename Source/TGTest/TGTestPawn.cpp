@@ -13,8 +13,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 
-#include "ImGuiCommon.h"
-
 const FName ATGTestPawn::MoveForwardBinding("MoveForward");
 const FName ATGTestPawn::MoveRightBinding("MoveRight");
 const FName ATGTestPawn::FireForwardBinding("FireForward");
