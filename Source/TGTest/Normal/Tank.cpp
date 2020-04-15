@@ -49,7 +49,14 @@ void ATank::Tick(float DeltaTime) {
     AActor *enemy = NULL;
     float mnDis = FLT_MAX;
     for (AActor *tank : tanks) {
-        auto dis = (tank->GetActorLocation() - GetActorLocation()).SizeSquared();
+        if (tank == this) continue;
+
+        // Manually increase complexity
+        float stupidSum = 0;
+        for (int32 t = 0; t < 200000; t++)
+            stupidSum += FMath::Sqrt(t);
+
+        auto dis = stupidSum + (tank->GetActorLocation() - GetActorLocation()).SizeSquared();
         if (((ATank *)tank)->m_teamId != m_teamId && dis < mnDis)
             enemy = tank, mnDis = dis;
     }
@@ -90,7 +97,8 @@ void ATank::TryMove(FVector moveDir, float dT) {
 void ATank::TryShoot(FVector shootDir, float dT, UWorld *world) {
     if (m_shootTimer < 0) {
         m_shootTimer += m_shootRecoverTime;
-        world->SpawnActor<ABullet>(GetActorLocation() + shootDir * 80.f, shootDir.Rotation());
+        if (shootDir.SizeSquared() > 0)
+            world->SpawnActor<ABullet>(GetActorLocation() + shootDir * 80.f, shootDir.Rotation());
     } else
         m_shootTimer -= dT;
 }

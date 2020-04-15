@@ -36,7 +36,13 @@ void ATankManagerTG::Tick(float DeltaTime) {
         float mnDis = FLT_MAX;
         for (int32 j = 0; j < tanks.Num(); j++) {
             if (i == j) continue;
-            auto dis = (tanks[j]->GetActorLocation() - tanks[i]->GetActorLocation()).SizeSquared();
+
+            // Manually increase complexity
+            float stupidSum = 0;
+            for (int32 t = 0; t < 200000; t++)
+                stupidSum += FMath::Sqrt(t);
+
+            auto dis = stupidSum + (tanks[j]->GetActorLocation() - tanks[i]->GetActorLocation()).SizeSquared();
             if (tanks[j]->m_teamId != tanks[i]->m_teamId && dis < mnDis)
                 enemy = tanks[j], mnDis = dis;
         }
@@ -63,7 +69,8 @@ void ATankManagerTG::Tick(float DeltaTime) {
         auto shootDir = shootDirs[i];
         if (tank->m_shootTimer < 0) {
             tank->m_shootTimer += tank->m_shootRecoverTime;
-            world->SpawnActor<ABulletTG>(tank->GetActorLocation() + shootDir * 80.f, shootDir.Rotation());
+            if (shootDir.SizeSquared() > 0)
+                world->SpawnActor<ABulletTG>(tank->GetActorLocation() + shootDir * 80.f, shootDir.Rotation());
         } else
             tank->m_shootTimer -= DeltaTime;
     }
