@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../ImGuiCommon.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "TankManagerTG.generated.h"
@@ -20,7 +21,7 @@ class TGTEST_API ATankManagerTG : public AActor {
     virtual void Tick(float DeltaTime) override;
 
    private:
-	TSet<ATankTG*> m_tanks;
-	float m_spawnRecoverTime;
-	float m_spawnTimer;
+    TSet<ATankTG *> m_tanks;
+    float m_spawnRecoverTime;
+    float m_spawnTimer;
 };

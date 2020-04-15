@@ -20,6 +20,12 @@ ATankManagerTG::ATankManagerTG() {
 void ATankManagerTG::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 
+#if WITH_IMGUI
+    ImGui::NewFrame();
+    ImGui::Button("cnmsdfsdfdsfsdfsdffsdf");
+    ImGui::Render();
+#endif
+
     UWorld* world = GetWorld();
     if (!world) return;
 
