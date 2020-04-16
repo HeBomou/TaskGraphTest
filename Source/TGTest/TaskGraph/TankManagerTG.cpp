@@ -37,13 +37,12 @@ void ATankManagerTG::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 }
 
 struct TestGameLogicTask : public TaskAnt::AntTask {
-	int m_time;
 	const int m_begin;
 	const int m_end;
 	const TArray<ATankTG*>& m_tanks;
 	TArray<FVector> &m_moveDirs;
 	TArray<FVector> &m_shootDirs;
-	TestGameLogicTask(string name, const int& begin, const int& end, const TArray<ATankTG*>& tanks, TArray<FVector> &moveDirs, TArray<FVector> &shootDirs) : AntTask(name), m_begin(begin), m_end(end), m_tanks(tanks), m_moveDirs(moveDirs), m_shootDirs(shootDirs) {}
+	TestGameLogicTask(const string& name, const int& begin, const int& end, const TArray<ATankTG*>& tanks, TArray<FVector> &moveDirs, TArray<FVector> &shootDirs) : AntTask(name), m_begin(begin), m_end(end), m_tanks(tanks), m_moveDirs(moveDirs), m_shootDirs(shootDirs) {}
 	virtual ~TestGameLogicTask() override {}
 	virtual void Run() override {
 		for (int i = m_begin; i < m_end; i++) {
@@ -69,6 +68,28 @@ struct TestGameLogicTask : public TaskAnt::AntTask {
 					m_moveDirs[i] = FVector(FMath::RandPointInCircle(1).GetSafeNormal(), 0);
 			}
 		}
+	}
+};
+
+struct TestTankTaskAA : public TaskAnt::AntTask {
+	int m_time;
+	TestTankTaskAA(const string &name, const int &time) : AntTask(name), m_time(time) {}
+	virtual ~TestTankTaskAA() override {}
+	virtual void Run() override {
+		float temp = 0;
+		for (int i = 0; i < m_time * 200; i++)
+			temp += FMath::Sqrt(i * (i + 1));
+	}
+};
+
+struct TestTankTaskBB : public TaskAnt::AntTask {
+	int m_time;
+	TestTankTaskBB(const string &name, const int &time) : AntTask(name), m_time(time) {}
+	virtual ~TestTankTaskBB() override {}
+	virtual void Run() override {
+		float temp = 0;
+		for (int i = 0; i < m_time * 200; i++)
+			temp += FMath::Sqrt(i * (i + 1));
 	}
 };
 
@@ -104,11 +125,17 @@ void ATankManagerTG::Tick(float DeltaTime) {
 
 	// 游戏逻辑的并行
 	// TODO: 应当使用模板来封装ScheduleParallelFor
-	int chunkNum = 32;
+	int chunkNum = 16;
 	vector<shared_ptr<TaskAnt::AntEvent>> evts;
 	for (int i = 0; i < tanks.Num(); i += chunkNum)
 		evts.emplace_back(TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestGameLogicTask(string_format("Game Logic Task %d", i / chunkNum), i, min(i + chunkNum, tanks.Num()), tanks, moveDirs, shootDirs), vector<shared_ptr<TaskAnt::AntEvent>>{}));
+	// 测试用Task
+	vector<shared_ptr<TaskAnt::AntEvent>> e1d(evts.begin(), evts.begin() + evts.size() / 3);
+	auto e1 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTankTaskAA("Test A 1", 300), e1d);
+	auto e2 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTankTaskAA("Test A 2", 150), evts);
+	auto e3 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTankTaskBB("Test BBBB", 2333), vector<shared_ptr<TaskAnt::AntEvent>>{e1, e2});
 	// 任务验收
+	e3->Complete();
 	for (auto evt : evts)
 		evt->Complete();
 
