@@ -11,10 +11,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "TGTestProjectile.h"
-#include "TaskAnt/AntEvent.h"
-#include "TaskAnt/AntManager.h"
-#include "TaskAnt/AntTask.h"
-#include "TaskAnt/AntWatcher.h"
 #include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -66,57 +62,8 @@ void ATGTestPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputCo
     PlayerInputComponent->BindAxis(FireRightBinding);
 }
 
-struct TestTask : public TaskAnt::AntTask {
-    int m_outputNum;
-    int m_time;
-    TestTask(string name, const int& outputNum) : AntTask(name), m_outputNum(outputNum) {}
-    virtual ~TestTask() override {}
-    virtual void Run() override {
-        for (int i = 0; i < m_outputNum; i++) {
-            m_time++;
-            for (int j = 0; j < m_outputNum * 1000; j++)
-                m_time += sqrt(j);
-        }
-    }
-};
-
-void ATGTestPawn::BeginPlay() {
-    Super::BeginPlay();
-    imnodes::Initialize();
-    UE_LOG(LogTemp, Warning, TEXT("cnmd Begin"));
-}
-
-void ATGTestPawn::EndPlay(const EEndPlayReason::Type EndPlayReason) {
-    Super::EndPlay(EndPlayReason);
-    imnodes::Shutdown();
-    UE_LOG(LogTemp, Warning, TEXT("cnmd End"));
-}
-
 void ATGTestPawn::Tick(float DeltaSeconds) {
     Super::Tick(DeltaSeconds);
-
-    static int frameNum = 0;
-    frameNum++;
-#if WITH_IMGUI
-    UE_LOG(LogTemp, Warning, TEXT("cnmd Tick imgui"));
-    // 启动若干任务
-    auto event1 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTask("Task 1", 2), vector<shared_ptr<TaskAnt::AntEvent>>{});
-    auto event2 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTask("Task 2", 4), vector<shared_ptr<TaskAnt::AntEvent>>{});
-	auto event3 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTask("Task 3", 3), vector<shared_ptr<TaskAnt::AntEvent>>{event1, event2});
-    // auto event4 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTask("Task 4", 2), vector<shared_ptr<TaskAnt::AntEvent>>{event3});
-    // auto event5 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTask("Task 5", 8), vector<shared_ptr<TaskAnt::AntEvent>>{event1, event2});
-    // auto event6 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTask("Task 6", 3), vector<shared_ptr<TaskAnt::AntEvent>>{event2});
-    // auto event7 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTask("Task 7", 5), vector<shared_ptr<TaskAnt::AntEvent>>{event5});
-    // auto event8 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTask("Task 8", 9), vector<shared_ptr<TaskAnt::AntEvent>>{});
-    // auto event9 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTask("Task 9", 7), vector<shared_ptr<TaskAnt::AntEvent>>{event4, event8});
-    // auto event10 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTask("Task 10", 9), vector<shared_ptr<TaskAnt::AntEvent>>{event6});
-    // auto event11 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTask("Task 11", 9), vector<shared_ptr<TaskAnt::AntEvent>>{event4, event5, event6, event7, event9, event10});
-
-    // 完成任务
-	event3->Complete();
-
-	TaskAnt::AntWatcher::GetInstance()->ImGuiRenderTick();
-#endif
 
     // Find movement direction
     const float ForwardValue = GetInputAxisValue(MoveForwardBinding);

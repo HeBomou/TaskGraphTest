@@ -2,9 +2,6 @@
 
 #pragma once
 
-#include "ImGuiCommon.h"
-#include "imnodes/imnodes.h"
-
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "TGTestPawn.generated.h"
@@ -46,8 +43,6 @@ public:
 	class USoundBase* FireSound;
 
 	// Begin Actor Interface
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End Actor Interface
