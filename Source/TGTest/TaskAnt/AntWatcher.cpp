@@ -1,7 +1,7 @@
 #include "AntWatcher.h"
 
 #include <imgui.h>
-#include "imnodes.h"
+#include "../imnodes/imnodes.h" // TODO: 使用插件或者修改Build
 
 #include <map>
 
@@ -98,6 +98,8 @@ void AntWatcher::AddNode(const int& frameNum, const string& taskName, const shar
 
 void AntWatcher::ImGuiRenderTick() {
     ImGui::Begin("Dependencies");
+
+	ImGui::SetWindowSize(ImVec2(500, 300));
 
     imnodes::BeginNodeEditor();
 
