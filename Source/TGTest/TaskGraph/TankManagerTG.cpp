@@ -36,35 +36,31 @@ void ATankManagerTG::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 }
 
 struct TestGameLogicTask {
-	const int m_begin;
-	const int m_end;
 	const TArray<ATankTG*>& m_tanks;
 	TArray<FVector> &m_moveDirs;
 	TArray<FVector> &m_shootDirs;
-	TestGameLogicTask(const int& begin, const int& end, const TArray<ATankTG*>& tanks, TArray<FVector> &moveDirs, TArray<FVector> &shootDirs) : m_begin(begin), m_end(end), m_tanks(tanks), m_moveDirs(moveDirs), m_shootDirs(shootDirs) {}
-	void operator()() {
-		for (int i = m_begin; i < m_end; i++) {
-			ATankTG* enemy = NULL;
-			float mnDis = FLT_MAX;
-			for (int32 j = 0; j < m_tanks.Num(); j++) {
-				if (i == j) continue;
+	TestGameLogicTask(const TArray<ATankTG*>& tanks, TArray<FVector> &moveDirs, TArray<FVector> &shootDirs) : m_tanks(tanks), m_moveDirs(moveDirs), m_shootDirs(shootDirs) {}
+	void operator()(int i) {
+		ATankTG* enemy = NULL;
+		float mnDis = FLT_MAX;
+		for (int32 j = 0; j < m_tanks.Num(); j++) {
+			if (i == j) continue;
 
-				// Manually increase complexity
-				float stupidSum = 0;
-				for (int32 t = 0; t < 2000; t++)
-					stupidSum += FMath::Sqrt(t);
+			// Manually increase complexity
+			float stupidSum = 0;
+			for (int32 t = 0; t < 2000; t++)
+				stupidSum += FMath::Sqrt(t);
 
-				auto dis = stupidSum + (m_tanks[j]->GetActorLocation() - m_tanks[i]->GetActorLocation()).SizeSquared();
-				if (m_tanks[j]->m_teamId != m_tanks[i]->m_teamId && dis < mnDis)
-					enemy = m_tanks[j], mnDis = dis;
-			}
-			if (enemy)
-				m_moveDirs[i] = m_shootDirs[i] = (enemy->GetActorLocation() - m_tanks[i]->GetActorLocation()).GetSafeNormal();
-			else {
-				m_shootDirs[i] = FVector();
-				while (m_moveDirs[i].SizeSquared() == 0)
-					m_moveDirs[i] = FVector(FMath::RandPointInCircle(1).GetSafeNormal(), 0);
-			}
+			auto dis = stupidSum + (m_tanks[j]->GetActorLocation() - m_tanks[i]->GetActorLocation()).SizeSquared();
+			if (m_tanks[j]->m_teamId != m_tanks[i]->m_teamId && dis < mnDis)
+				enemy = m_tanks[j], mnDis = dis;
+		}
+		if (enemy)
+			m_moveDirs[i] = m_shootDirs[i] = (enemy->GetActorLocation() - m_tanks[i]->GetActorLocation()).GetSafeNormal();
+		else {
+			m_shootDirs[i] = FVector();
+			while (m_moveDirs[i].SizeSquared() == 0)
+				m_moveDirs[i] = FVector(FMath::RandPointInCircle(1).GetSafeNormal(), 0);
 		}
 	}
 };
@@ -111,10 +107,7 @@ void ATankManagerTG::Tick(float DeltaTime) {
 
 	// 计算每个tank
 	// TODO: 用ScheduleTaskParallel
-	int chunkNum = 16;
-	vector<shared_ptr<TaskAnt::AntEvent>> evts;
-	for (int i = 0; i < tanks.Num(); i += chunkNum)
-		evts.emplace_back(TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, string_format("Game Logic Task %d", i / chunkNum), TestGameLogicTask(i, min(i + chunkNum, tanks.Num()), tanks, moveDirs, shootDirs), vector<shared_ptr<TaskAnt::AntEvent>>{}));
+	auto evts = TaskAnt::AntManager::GetInstance()->ScheduleTaskParallel(frameNum, "Game Logic Task", tanks.Num(), TestGameLogicTask(tanks, moveDirs, shootDirs), vector<shared_ptr<TaskAnt::AntEvent>>{});
 	// 测试用Task
 	vector<shared_ptr<TaskAnt::AntEvent>> e1d(evts.begin(), evts.begin() + evts.size() / 3);
 	auto e1 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, "Test A 1", TestTankTaskAA(300), e1d);
@@ -172,6 +165,6 @@ void ATankManagerTG::Tick(float DeltaTime) {
 	else
 		m_spawnTimer -= DeltaTime;
 
-	// ��Ⱦ����ͼ
+	// 渲染
 	TaskAnt::AntWatcher::GetInstance()->ImGuiRenderTick();
 }
