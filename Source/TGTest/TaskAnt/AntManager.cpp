@@ -2,10 +2,12 @@
 
 #include "AntWatcher.h"
 
+using namespace std;
+
 namespace TaskAnt {
 
 AntManager::AntManager() {
-    int antNum = 4;
+    int antNum = 32;
     for (int i = 0; i < antNum; i++) {
         auto pAnt = new Ant();
         auto pAntThread = AntThread::Create(pAnt);
@@ -46,15 +48,42 @@ AntManager* AntManager::GetInstance() {
     return &instance;
 }
 
-shared_ptr<AntEvent> AntManager::ScheduleTask(const int& frameNum, AntTask* pTask, const vector<shared_ptr<AntEvent>>& pEvents) {
+shared_ptr<AntEvent> AntManager::ScheduleTask(const int& frameNum, const string& name, const function<void()>& proc, const vector<shared_ptr<AntEvent>>& pEvents) {
+    auto pTask = new AntTask(name, proc);
     auto res = pTask->Setup(pEvents.size() + 1);  // 加一为了锁住任务
     int alreadyFinished = 0;
     for (auto pE : pEvents)
         alreadyFinished += pE->TryAddSubsequent(pTask) ? 0 : 1;
     // TODO: 条件编译
-    AntWatcher::GetInstance()->AddNode(frameNum, pTask->GetName(), res, pEvents);
+    AntWatcher::GetInstance()->AddNode(frameNum, name, res, pEvents);
 
     pTask->PrerequisitesComplete(alreadyFinished);
+    return res;
+}
+
+struct ParallelProcessExecutor {
+    int m_begin;
+    int m_end;
+    function<void(int)> m_proc;
+    ParallelProcessExecutor(const int& begin, const int& end, function<void(int)> proc) : m_begin(begin), m_end(end), m_proc(proc) {}
+    void operator()() {
+        for (int i = m_begin; i < m_end; i++)
+            m_proc(i);
+    }
+};
+
+vector<shared_ptr<AntEvent>> AntManager::ScheduleTaskParallel(const int& frameNum, const string& name, int totalNum, const function<void(int)>& proc, const vector<shared_ptr<AntEvent>>& pEvents) {
+    vector<shared_ptr<AntEvent>> res;
+    int taskNum = m_pAnts.size();
+    int numPerProc = totalNum / taskNum;
+    if (numPerProc) {
+        numPerProc += (totalNum % taskNum) ? 1 : 0;
+        for (int i = 0; i < totalNum; i += numPerProc)
+            res.emplace_back(ScheduleTask(frameNum, name, ParallelProcessExecutor(i, min(i + numPerProc, totalNum), proc), pEvents));
+    } else {
+        for (int i = 0; i < totalNum; i++)
+            res.emplace_back(ScheduleTask(frameNum, name, ParallelProcessExecutor(i, i + 1, proc), pEvents));
+    }
     return res;
 }
 

@@ -2,6 +2,8 @@
 
 #include "AntManager.h"
 
+using namespace std;
+
 namespace TaskAnt {
 
 shared_ptr<AntEvent> AntTask::Setup(int inDegree) {
@@ -23,10 +25,6 @@ void AntTask::BeforeRun() { m_event->BeforeRun(); }
 
 void AntTask::AfterRun() { m_event->AfterRun(m_name); }
 
-AntTask::AntTask(const string& name) : m_name(name) {}
-
-AntTask::~AntTask() {}
-
-const string& AntTask::GetName() const { return m_name; }
+AntTask::AntTask(const string& name, const function<void()>& proc) : m_name(name), m_proc(proc) {}
 
 }  // namespace TaskAnt

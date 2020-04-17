@@ -1,6 +1,5 @@
 #include "TankManagerTG.h"
 
-#include "Async/ParallelFor.h"
 #include "BulletTG.h"
 #include "Engine/World.h"
 #include "TankTG.h"
@@ -20,8 +19,6 @@ ATankManagerTG::ATankManagerTG() {
     // Spawn
     m_spawnRecoverTime = 5;
     m_spawnTimer = 0;
-
-	TaskAnt::AntManager::GetInstance(); // TODO: 线程有一定概率不可用，可能创建失败或者被挂起，也许是TaskGraph已经开了太多线程
 }
 
 void ATankManagerTG::BeginPlay() {
@@ -123,18 +120,18 @@ void ATankManagerTG::Tick(float DeltaTime) {
 	shootDirs.Init(FVector(), tanks.Num());
 	moveDirs.Init(FVector(), tanks.Num());
 
-	// 游戏逻辑的并行
-	// TODO: 应当使用模板来封装ScheduleParallelFor
+	// 锟斤拷戏锟竭硷拷锟侥诧拷锟斤拷
+	// TODO: 应锟斤拷使锟斤拷模锟斤拷锟斤拷锟斤拷装ScheduleParallelFor
 	int chunkNum = 16;
 	vector<shared_ptr<TaskAnt::AntEvent>> evts;
 	for (int i = 0; i < tanks.Num(); i += chunkNum)
 		evts.emplace_back(TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestGameLogicTask(string_format("Game Logic Task %d", i / chunkNum), i, min(i + chunkNum, tanks.Num()), tanks, moveDirs, shootDirs), vector<shared_ptr<TaskAnt::AntEvent>>{}));
-	// 测试用Task
+	// 锟斤拷锟斤拷锟斤拷Task
 	vector<shared_ptr<TaskAnt::AntEvent>> e1d(evts.begin(), evts.begin() + evts.size() / 3);
 	auto e1 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTankTaskAA("Test A 1", 300), e1d);
 	auto e2 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTankTaskAA("Test A 2", 150), evts);
 	auto e3 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTankTaskBB("Test BBBB", 2333), vector<shared_ptr<TaskAnt::AntEvent>>{e1, e2});
-	// 任务验收
+	// 锟斤拷锟斤拷锟斤拷锟斤拷
 	e3->Complete();
 	for (auto evt : evts)
 		evt->Complete();
@@ -183,6 +180,6 @@ void ATankManagerTG::Tick(float DeltaTime) {
 	else
 		m_spawnTimer -= DeltaTime;
 
-	// 渲染依赖图
+	// 锟斤拷染锟斤拷锟斤拷图
 	TaskAnt::AntWatcher::GetInstance()->ImGuiRenderTick();
 }
