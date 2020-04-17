@@ -9,6 +9,8 @@
 #include "../TaskAnt/AntTask.h"
 #include "../TaskAnt/AntWatcher.h"
 
+using namespace std;
+
 ATankManagerTG::ATankManagerTG() {
     PrimaryActorTick.bCanEverTick = true;
 
@@ -33,15 +35,14 @@ void ATankManagerTG::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 	imnodes::Shutdown();
 }
 
-struct TestGameLogicTask : public TaskAnt::AntTask {
+struct TestGameLogicTask {
 	const int m_begin;
 	const int m_end;
 	const TArray<ATankTG*>& m_tanks;
 	TArray<FVector> &m_moveDirs;
 	TArray<FVector> &m_shootDirs;
-	TestGameLogicTask(const string& name, const int& begin, const int& end, const TArray<ATankTG*>& tanks, TArray<FVector> &moveDirs, TArray<FVector> &shootDirs) : AntTask(name), m_begin(begin), m_end(end), m_tanks(tanks), m_moveDirs(moveDirs), m_shootDirs(shootDirs) {}
-	virtual ~TestGameLogicTask() override {}
-	virtual void Run() override {
+	TestGameLogicTask(const int& begin, const int& end, const TArray<ATankTG*>& tanks, TArray<FVector> &moveDirs, TArray<FVector> &shootDirs) : m_begin(begin), m_end(end), m_tanks(tanks), m_moveDirs(moveDirs), m_shootDirs(shootDirs) {}
+	void operator()() {
 		for (int i = m_begin; i < m_end; i++) {
 			ATankTG* enemy = NULL;
 			float mnDis = FLT_MAX;
@@ -68,22 +69,10 @@ struct TestGameLogicTask : public TaskAnt::AntTask {
 	}
 };
 
-struct TestTankTaskAA : public TaskAnt::AntTask {
+struct TestTankTaskAA {
 	int m_time;
-	TestTankTaskAA(const string &name, const int &time) : AntTask(name), m_time(time) {}
-	virtual ~TestTankTaskAA() override {}
-	virtual void Run() override {
-		float temp = 0;
-		for (int i = 0; i < m_time * 200; i++)
-			temp += FMath::Sqrt(i * (i + 1));
-	}
-};
-
-struct TestTankTaskBB : public TaskAnt::AntTask {
-	int m_time;
-	TestTankTaskBB(const string &name, const int &time) : AntTask(name), m_time(time) {}
-	virtual ~TestTankTaskBB() override {}
-	virtual void Run() override {
+	TestTankTaskAA(const int &time) : m_time(time) {}
+	void operator()() {
 		float temp = 0;
 		for (int i = 0; i < m_time * 200; i++)
 			temp += FMath::Sqrt(i * (i + 1));
@@ -120,18 +109,21 @@ void ATankManagerTG::Tick(float DeltaTime) {
 	shootDirs.Init(FVector(), tanks.Num());
 	moveDirs.Init(FVector(), tanks.Num());
 
-	// ��Ϸ�߼��Ĳ���
-	// TODO: Ӧ��ʹ��ģ������װScheduleParallelFor
+	// 计算每个tank
+	// TODO: 用ScheduleTaskParallel
 	int chunkNum = 16;
 	vector<shared_ptr<TaskAnt::AntEvent>> evts;
 	for (int i = 0; i < tanks.Num(); i += chunkNum)
-		evts.emplace_back(TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestGameLogicTask(string_format("Game Logic Task %d", i / chunkNum), i, min(i + chunkNum, tanks.Num()), tanks, moveDirs, shootDirs), vector<shared_ptr<TaskAnt::AntEvent>>{}));
-	// ������Task
+		evts.emplace_back(TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, string_format("Game Logic Task %d", i / chunkNum), TestGameLogicTask(i, min(i + chunkNum, tanks.Num()), tanks, moveDirs, shootDirs), vector<shared_ptr<TaskAnt::AntEvent>>{}));
+	// 测试用Task
 	vector<shared_ptr<TaskAnt::AntEvent>> e1d(evts.begin(), evts.begin() + evts.size() / 3);
-	auto e1 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTankTaskAA("Test A 1", 300), e1d);
-	auto e2 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTankTaskAA("Test A 2", 150), evts);
-	auto e3 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, new TestTankTaskBB("Test BBBB", 2333), vector<shared_ptr<TaskAnt::AntEvent>>{e1, e2});
-	// ��������
+	auto e1 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, "Test A 1", TestTankTaskAA(300), e1d);
+	auto e2 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, "Test A 2", TestTankTaskAA(150), evts);
+	auto e3 = TaskAnt::AntManager::GetInstance()->ScheduleTask(frameNum, "Test BBBB", []() {
+		float temp = 0;
+		for (int i = 0; i < 11 * 200; i++)
+			temp += FMath::Sqrt(i * (i + 1)); }, vector<shared_ptr<TaskAnt::AntEvent>>{e1, e2});
+	// 任务交付
 	e3->Complete();
 	for (auto evt : evts)
 		evt->Complete();
