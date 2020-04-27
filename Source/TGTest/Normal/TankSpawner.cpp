@@ -3,6 +3,7 @@
 #include "Engine/World.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Tank.h"
+#include "ImGuiModule.h"
 
 ATankSpawner::ATankSpawner() {
     PrimaryActorTick.bCanEverTick = true;
@@ -22,6 +23,9 @@ void ATankSpawner::BeginPlay() {
     // Show mouse cursor
     APlayerController* playerController = UGameplayStatics::GetPlayerController(GWorld, 0);
     playerController->bShowMouseCursor = true;
+
+    // ImGui enable input
+    FImGuiModule::Get().GetProperties().SetInputEnabled(true);
 }
 
 void ATankSpawner::Tick(float DeltaTime) {

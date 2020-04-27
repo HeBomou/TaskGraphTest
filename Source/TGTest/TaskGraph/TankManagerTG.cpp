@@ -6,6 +6,7 @@
 #include "../TaskAnt/AntWatcher.h"
 #include "BulletTG.h"
 #include "Engine/World.h"
+#include "ImGuiModule.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "TankTG.h"
 
@@ -29,6 +30,9 @@ void ATankManagerTG::BeginPlay() {
     // Show mouse cursor
     APlayerController* playerController = UGameplayStatics::GetPlayerController(GWorld, 0);
     playerController->bShowMouseCursor = true;
+
+    // ImGui enable input
+    FImGuiModule::Get().GetProperties().SetInputEnabled(true);
 
     imnodes::Initialize();
 }
