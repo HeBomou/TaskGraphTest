@@ -122,7 +122,7 @@ void ATankManagerTG::Tick(float DeltaTime) {
     auto e3 = TaskAnt::AntManager::GetInstance()->ScheduleTask(
         frameNum, "Test BBBB", []() {
 		float temp = 0;
-		for (int i = 0; i < 11 * 200; i++)
+		for (int i = 0; i < 11 * 10; i++)
 			temp += FMath::Sqrt(i * (i + 1)); }, vector<shared_ptr<TaskAnt::AntEvent>>{e1, e2});
     // 任务交付
     e3->Complete();

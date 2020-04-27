@@ -13,7 +13,9 @@
 		"typescript.tsc.autoDetect": "off",
 		"files.associations": {
 			"algorithm": "cpp",
-			"string": "cpp"
+			"string": "cpp",
+			"memory": "cpp",
+			"chrono": "cpp"
 		}
 	},
 	"extensions": {
