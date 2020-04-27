@@ -53,7 +53,7 @@ void ATank::Tick(float DeltaTime) {
 
         // Manually increase complexity
         float stupidSum = 0;
-        for (int32 t = 0; t < 200000; t++)
+        for (int32 t = 0; t < 2000; t++)
             stupidSum += FMath::Sqrt(t);
 
         auto dis = stupidSum + (tank->GetActorLocation() - GetActorLocation()).SizeSquared();

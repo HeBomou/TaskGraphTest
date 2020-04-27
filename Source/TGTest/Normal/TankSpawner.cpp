@@ -1,18 +1,27 @@
 #include "TankSpawner.h"
 
 #include "Engine/World.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Tank.h"
 
 ATankSpawner::ATankSpawner() {
     PrimaryActorTick.bCanEverTick = true;
 
-	// Scene Component
-	m_scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene0"));
-	RootComponent = m_scene;
+    // Scene Component
+    m_scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene0"));
+    RootComponent = m_scene;
 
     m_spawnNum = 40;
     m_spawnRecoverTime = 5;
     m_spawnTimer = 0;
+}
+
+void ATankSpawner::BeginPlay() {
+    Super::BeginPlay();
+
+    // Show mouse cursor
+    APlayerController* playerController = UGameplayStatics::GetPlayerController(GWorld, 0);
+    playerController->bShowMouseCursor = true;
 }
 
 void ATankSpawner::Tick(float DeltaTime) {
