@@ -7,9 +7,9 @@ using namespace std;
 namespace TaskAnt {
 
 AntManager::AntManager() {
-    int antNum = 32;
+    int antNum = 4;
     for (int i = 0; i < antNum; i++) {
-        auto pAnt = new Ant();
+        auto pAnt = new Ant(i);
         auto pAntThread = AntThread::Create(pAnt);
         m_pAnts.push_back(pAnt);
         m_pAntThreads.push_back(pAntThread);
@@ -32,7 +32,7 @@ void AntManager::QueueTask(AntTask* pTask) {
 }
 
 AntManager::~AntManager() {
-    // TODO: 目前在退出时是放弃未执行的任务，可以考虑改成完成所有的任务
+    // HACK: 目前在退出时是放弃未执行的任务，可以考虑改成完成所有的任务
     for (auto pAnt : m_pAnts) pAnt->Stop();
     m_taskQueueCv.notify_all();
     for (auto pThread : m_pAntThreads) delete pThread;
@@ -54,8 +54,9 @@ shared_ptr<AntEvent> AntManager::ScheduleTask(const int& frameNum, const string&
     int alreadyFinished = 0;
     for (auto pE : pEvents)
         alreadyFinished += pE->TryAddSubsequent(pTask) ? 0 : 1;
-    // TODO: 条件编译
+#ifdef DEBUG
     AntWatcher::GetInstance()->AddNode(frameNum, name, res, pEvents);
+#endif
 
     pTask->PrerequisitesComplete(alreadyFinished);
     return res;

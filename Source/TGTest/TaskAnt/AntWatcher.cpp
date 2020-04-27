@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include "../imnodes/imnodes.h"
 
+#include <algorithm>
 #include <map>
 
 #include "AntEvent.h"
@@ -67,13 +68,98 @@ map<string, int> TaskNode::s_edgeMap{};
 AntWatcher::AntWatcher() {
 }
 
+void AntWatcher::LogTick() {
+    // TODO: 输出到日志文件
+}
+
+void AntWatcher::ImGuiRenderTick() {
+    ImGui::Begin("Controller");
+    // 暂停按钮
+    if (m_pause) {
+        if (ImGui::Button("Resume"))
+            m_pause = false;
+    } else if (ImGui::Button("Pause"))
+        m_pause = true;
+    ImGui::End();
+
+    // 无等待，其他线程在队尾加，渲染线程画队首
+    const int maxSize = 4;
+    if (m_taskStateQueue.size() >= maxSize) {
+        if (!m_pause && m_tasksToDisplayFrameNum != get<0>(m_taskStateQueue.front()))
+            m_tasksToDisplay = get<2>(m_taskStateQueue.front());
+        // 根据AntId排序把相同线程的任务排在一起
+        sort(m_tasksToDisplay.begin(), m_tasksToDisplay.end(), [](TaskNode* a, TaskNode* b) { return a->m_event->AntId() < b->m_event->AntId(); });
+        // 让渲染固定慢几帧
+        while (m_taskStateQueue.size() > maxSize) m_taskStateQueue.pop_front();
+    } else
+        return;
+
+    // 显示依赖关系
+    ImGui::Begin("Dependencies");
+    // ImGui::SetWindowSize(ImVec2(600, 400));
+    imnodes::BeginNodeEditor();
+    for (auto it = m_tasksToDisplay.begin(); it != m_tasksToDisplay.end(); it++) {
+        auto node = *it;
+        imnodes::BeginNode(node->m_id);
+        // 标题
+        imnodes::BeginNodeTitleBar();
+        ImGui::Text("%s", node->m_title.c_str());
+        imnodes::EndNodeTitleBar();
+        // 运行时间
+        ImGui::TextColored(ImColor(0, 240, 0), "%.4f", (float)node->m_event->RunningTime() / CLOCKS_PER_SEC);
+        // 输入插槽
+        imnodes::BeginInputAttribute(node->m_inputId);
+        ImGui::Text("Dep");
+        imnodes::EndAttribute();
+        // 输出插槽
+        imnodes::BeginOutputAttribute(node->m_outputId);
+        ImGui::Text("Event");
+        imnodes::EndAttribute();
+        imnodes::EndNode();
+        // 位置
+        imnodes::SetNodeGridSpacePos(node->m_id, node->m_pos);
+        for (const Connection& connection : node->GetDeps())
+            imnodes::Link(connection.m_id, node->m_inputId, connection.m_dep->m_outputId);
+    }
+    imnodes::EndNodeEditor();
+    ImGui::End();
+
+    // XXX: 显示时间线
+    ImGui::Begin("Timeline");
+
+    int reserveT = 100;
+    int lineHeight = 40;
+    float factor = 0.75f;
+    time_t minT = m_tasksToDisplay.empty() ? -1 : m_tasksToDisplay.front()->m_event->StartTime();
+    for (auto node : m_tasksToDisplay)
+        minT = min(minT, node->m_event->StartTime());
+    minT *= factor;
+
+    int preAntId = -1;
+
+    for (auto node : m_tasksToDisplay) {
+        if (node->m_event->AntId() != preAntId) {
+            preAntId = node->m_event->AntId();
+            ImGui::Button(("Ant " + to_string(preAntId)).c_str(), ImVec2(reserveT >> 1, lineHeight));
+        }
+        const string& taskName = node->m_title;
+        const time_t& startTime = node->m_event->StartTime() * factor;
+        const time_t& runningTime = node->m_event->RunningTime() * factor;
+        ImGui::SameLine(startTime - minT + reserveT);
+        ImGui::Button(taskName.c_str(), ImVec2(runningTime, lineHeight));
+    }
+
+    ImGui::End();
+}
+
 AntWatcher* AntWatcher::GetInstance() {
     static AntWatcher instance;
     return &instance;
 }
 
 void AntWatcher::AddNode(const int& frameNum, const string& taskName, const shared_ptr<AntEvent>& event, const vector<shared_ptr<AntEvent>>& deps) {
-    // TODO: 无等待，但是AddNode只能在主线程
+    // AddNode可以在任意线程
+    lock_guard<mutex> lock(m_mtx);
     if (get<0>(m_taskStateQueue.back()) != frameNum)
         m_taskStateQueue.emplace_back(make_tuple(frameNum, vector<int>(), vector<TaskNode*>()));
     auto& taskNodes = get<2>(m_taskStateQueue.back());
@@ -98,47 +184,8 @@ void AntWatcher::AddNode(const int& frameNum, const string& taskName, const shar
     newNode->m_pos = ImVec2(col * intervalX - intervalX * 0.8, row * intervalY + !(col & 1) * intervalY * 0.3 - intervalY * 0.8);
 }
 
-void AntWatcher::ImGuiRenderTick() {
-    ImGui::Begin("Dependencies");
-
-    ImGui::SetWindowSize(ImVec2(600, 400));
-
-    imnodes::BeginNodeEditor();
-
-    // 无等待，其他线程在队尾加，渲染线程画队首
-    const int maxSize = 4;
-    if (m_taskStateQueue.size() >= maxSize) {
-        for (auto it = get<2>(m_taskStateQueue.front()).begin(); it != get<2>(m_taskStateQueue.front()).end();) {
-            auto node = *it;
-            imnodes::BeginNode(node->m_id);
-            // 标题
-            imnodes::BeginNodeTitleBar();
-            ImGui::Text("%s", node->m_title.c_str());
-            imnodes::EndNodeTitleBar();
-            // 运行时间
-            ImGui::TextColored(ImColor(0, 240, 0), "%.4f", (float)node->m_event->RunningTime() / CLOCKS_PER_SEC);
-            // 输入插槽
-            imnodes::BeginInputAttribute(node->m_inputId);
-            ImGui::Text("Dep");
-            imnodes::EndAttribute();
-            // 输出插槽
-            imnodes::BeginOutputAttribute(node->m_outputId);
-            ImGui::Text("Event");
-            imnodes::EndAttribute();
-            imnodes::EndNode();
-            // 位置
-            imnodes::SetNodeGridSpacePos(node->m_id, node->m_pos);
-            for (const Connection& connection : node->GetDeps())
-                imnodes::Link(connection.m_id, node->m_inputId, connection.m_dep->m_outputId);
-            it++;
-        }
-        // 让渲染固定慢几帧
-        while (m_taskStateQueue.size() > maxSize) m_taskStateQueue.pop_front();
-    }
-
-    imnodes::EndNodeEditor();
-
-    ImGui::End();
+void AntWatcher::Tick() {
+    ImGuiRenderTick();
 }
 
 }  // namespace TaskAnt

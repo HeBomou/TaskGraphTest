@@ -3,6 +3,7 @@
 #include "BulletTG.h"
 #include "Engine/World.h"
 #include "TankTG.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
 #include "../TaskAnt/AntEvent.h"
 #include "../TaskAnt/AntManager.h"
@@ -25,6 +26,10 @@ ATankManagerTG::ATankManagerTG() {
 
 void ATankManagerTG::BeginPlay() {
 	Super::BeginPlay();
+	
+	// Show mouse cursor
+	APlayerController* playerController = UGameplayStatics::GetPlayerController(GWorld, 0);
+	playerController->bShowMouseCursor = true;
 
 	imnodes::Initialize();
 }
@@ -166,5 +171,5 @@ void ATankManagerTG::Tick(float DeltaTime) {
 		m_spawnTimer -= DeltaTime;
 
 	// 渲染
-	TaskAnt::AntWatcher::GetInstance()->ImGuiRenderTick();
+	TaskAnt::AntWatcher::GetInstance()->Tick();
 }
