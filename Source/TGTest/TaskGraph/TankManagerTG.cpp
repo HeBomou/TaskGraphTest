@@ -113,7 +113,6 @@ void ATankManagerTG::Tick(float DeltaTime) {
     moveDirs.Init(FVector(), tanks.Num());
 
     // 计算每个tank
-    // TODO: 用ScheduleTaskParallel
     auto evts = TaskAnt::AntManager::GetInstance()->ScheduleTaskParallel(frameNum, "Game Logic Task", tanks.Num(), TestGameLogicTask(tanks, moveDirs, shootDirs), vector<shared_ptr<TaskAnt::AntEvent>>{});
     // 测试用Task
     vector<shared_ptr<TaskAnt::AntEvent>> e1d(evts.begin(), evts.begin() + evts.size() / 3);
