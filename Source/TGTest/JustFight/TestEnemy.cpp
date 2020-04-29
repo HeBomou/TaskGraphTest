@@ -3,6 +3,7 @@
 #include "Engine/CollisionProfile.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "TestBullet.h"
 #include "UObject/ConstructorHelpers.h"
 
 ATestEnemy::ATestEnemy() {
@@ -26,7 +27,7 @@ ATestEnemy::ATestEnemy() {
 
     // Shoot
     m_shoot = false;
-    m_shootRecoverTime = 0.8f;
+    m_shootRecoverTime = 2.8f;
     m_shootTimer = FMath::RandRange(0.f, m_shootRecoverTime);
 }
 
@@ -53,9 +54,10 @@ void ATestEnemy::MyTick(float dT) {
 
     // Shoot
     if (m_shoot) {
+		m_shoot = false;
         UWorld* world = GetWorld();
-        // if (world)
-        //     world->SpawnActor<ATestBullet>(GetActorLocation() + m_shootDir * 80.f, m_shootDir.Rotation());
+        if (world)
+            world->SpawnActor<ATestBullet>(GetActorLocation() + m_shootDir * 220.f, m_shootDir.Rotation());
     }
 }
 
@@ -72,7 +74,7 @@ void ATestEnemy::MyTaskTick(float dT) {
     // Rand Shoot
     if (m_shootTimer < 0) {
         m_shootTimer = m_shootRecoverTime;
-		do
+        do
             m_shootDir = FVector(FMath::RandPointInCircle(1.f).GetSafeNormal(), 0);
         while (m_shootDir.SizeSquared() == 0);
         m_shoot = true;
