@@ -11,9 +11,6 @@ class TGTEST_API ATestEnemy : public APawn {
     GENERATED_BODY()
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
-    USceneComponent* m_scene;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
     UStaticMeshComponent* m_hullMesh;
 
    public:

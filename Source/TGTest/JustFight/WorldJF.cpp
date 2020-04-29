@@ -20,7 +20,7 @@ AWorldJF::AWorldJF() {
     RootComponent = m_scene;
 
     // Spawn
-    m_spawnRecoverTime = 5;
+    m_spawnRecoverTime = 50;
     m_spawnTimer = 0;
 }
 

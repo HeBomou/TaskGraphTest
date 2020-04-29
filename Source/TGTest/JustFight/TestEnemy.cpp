@@ -11,28 +11,23 @@ ATestEnemy::ATestEnemy() {
     // Disable tick
     PrimaryActorTick.bCanEverTick = false;
 
-    // Root cmpt to rotate the mesh
-    m_scene = CreateDefaultSubobject<USceneComponent>(TEXT("SceneJF"));
-    m_scene->SetWorldRotation(FRotator(0.f, 90.f, 0.f));
-    RootComponent = m_scene;
-
     // Mesh
     m_hullMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HullJF"));
     m_hullMesh->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
     m_hullMesh->SetStaticMesh(hullMesh.Object);
-    m_hullMesh->AttachToComponent(m_scene, FAttachmentTransformRules::KeepRelativeTransform);
+    RootComponent = m_hullMesh;
 
     // Health
     m_health = 100;
 
     // Move
     m_moveRecoverTime = 3.5f;
-    m_moveTimer = 0;
+    m_moveTimer = FMath::RandRange(0.f, m_moveRecoverTime);
 
     // Shoot
     m_shoot = false;
     m_shootRecoverTime = 0.8f;
-    m_shootTimer = FMath::RandRange(0.f, 0.2f);
+    m_shootTimer = FMath::RandRange(0.f, m_shootRecoverTime);
 }
 
 void ATestEnemy::BeginPlay() {
@@ -47,7 +42,7 @@ float ATestEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent
 void ATestEnemy::MyTick(float dT) {
     // Move
     FHitResult Hit(1.f);
-    FRotator rot = m_moveDir.Rotation();
+    FRotator rot = m_moveDir.Rotation() + FRotator(0.f, 90.f, 0.f);
     m_hullMesh->MoveComponent(m_moveDir * 2.f, rot, true, &Hit);
 
     if (Hit.IsValidBlockingHit()) {
@@ -68,17 +63,18 @@ void ATestEnemy::MyTaskTick(float dT) {
     // Rand Move
     if (m_moveTimer < 0) {
         m_moveTimer = m_moveRecoverTime;
-        while (m_moveDir.SizeSquared() == 0)
+        do
             m_moveDir = FVector(FMath::RandPointInCircle(1.f).GetSafeNormal(), 0);
-		UE_LOG(LogTemp, Warning, TEXT("%f %f %f"), m_moveDir.X, m_moveDir.Y, m_moveDir.Z);
+        while (m_moveDir.SizeSquared() == 0);
     } else
         m_moveTimer -= dT;
 
     // Rand Shoot
     if (m_shootTimer < 0) {
         m_shootTimer = m_shootRecoverTime;
-        while (m_shootDir.SizeSquared() == 0)
+		do
             m_shootDir = FVector(FMath::RandPointInCircle(1.f).GetSafeNormal(), 0);
+        while (m_shootDir.SizeSquared() == 0);
         m_shoot = true;
     } else
         m_shootTimer -= dT;
