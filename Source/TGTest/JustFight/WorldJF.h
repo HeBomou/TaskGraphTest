@@ -6,21 +6,30 @@
 #include "GameFramework/Actor.h"
 #include "WorldJF.generated.h"
 
+class ATestEnemy;
+
 UCLASS()
-class TGTEST_API AWorldJF : public AActor
-{
-	GENERATED_BODY()
+class TGTEST_API AWorldJF : public AActor {
+    GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
-	AWorldJF();
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Scene, meta = (AllowPrivateAccess = "true"))
+	USceneComponent *m_scene;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+   public:
+    // Sets default values for this actor's properties
+    AWorldJF();
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+   protected:
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+   public:
+    // Called every frame
+    virtual void Tick(float DeltaTime) override;
+
+	private:
+	TSet<ATestEnemy*> m_tanks;
+	float m_spawnRecoverTime;
+	float m_spawnTimer;
 };

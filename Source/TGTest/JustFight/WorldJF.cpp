@@ -1,28 +1,82 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "WorldJF.h"
 
-// Sets default values
-AWorldJF::AWorldJF()
-{
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+#include <memory>
+#include <vector>
 
+#include "../ImGuiCommon.h"
+#include "../TaskAnt/AntManager.h"
+#include "../TaskAnt/AntWatcher.h"
+#include "../imnodes/imnodes.h"
+#include "Engine/World.h"
+#include "ImGuiModule.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "TestEnemy.h"
+
+AWorldJF::AWorldJF() {
+    PrimaryActorTick.bCanEverTick = true;
+
+    // Root cmpt
+    m_scene = CreateDefaultSubobject<USceneComponent>(TEXT("WorldJF"));
+    RootComponent = m_scene;
+
+    // Spawn
+    m_spawnRecoverTime = 5;
+    m_spawnTimer = 0;
 }
 
-// Called when the game starts or when spawned
-void AWorldJF::BeginPlay()
-{
-	Super::BeginPlay();
-	
+void AWorldJF::BeginPlay() {
+    Super::BeginPlay();
+
+    // Show mouse cursor
+    APlayerController* playerController = UGameplayStatics::GetPlayerController(GWorld, 0);
+    playerController->bShowMouseCursor = true;
+
+    // ImGui enable input
+    FImGuiModule::Get().GetProperties().SetInputEnabled(true);
+
+    // imnodes init
+    imnodes::Initialize();
 }
 
-// Called every frame
-void AWorldJF::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+void AWorldJF::EndPlay(const EEndPlayReason::Type EndPlayReason) {
+    Super::EndPlay(EndPlayReason);
 
-	// TODO: Try to add TaskTick interface for Actor and Cmpt
+    // imnodes shutdown
+    imnodes::Shutdown();
 }
 
+void AWorldJF::Tick(float DeltaTime) {
+    Super::Tick(DeltaTime);
+
+    static int frameNum = 0;
+    frameNum++;
+
+    UWorld* world = GetWorld();
+    if (!world) return;
+
+    // MyTaskTick
+    TArray<ATestEnemy*> tanks;
+    for (auto it = m_tanks.CreateIterator(); it; ++it)
+        tanks.Add(*it);
+    auto evts = TaskAnt::AntManager::GetInstance()->ScheduleTaskParallel(
+        frameNum, "Enemy Tick", tanks.Num(), [&tanks, DeltaTime](int i) { tanks[i]->MyTaskTick(DeltaTime); }, std::vector<std::shared_ptr<TaskAnt::AntEvent>>());
+    for (auto evt : evts)
+        evt->Complete();
+    // MyTick
+    for (auto tank : tanks)
+        tank->MyTick(DeltaTime);
+
+    // Spawn
+    if (m_spawnTimer < 0) {
+        m_spawnTimer += m_spawnRecoverTime;
+        for (uint32 i = 0; i < 40; i++) {
+            auto tank = world->SpawnActor<ATestEnemy>(FVector(FMath::RandPointInCircle(1500), 0) + GetActorLocation(), FRotator());
+            if (tank)
+                m_tanks.Add(tank);
+        }
+    } else
+        m_spawnTimer -= DeltaTime;
+
+    // Render ImGui
+    TaskAnt::AntWatcher::GetInstance()->Tick();
+}

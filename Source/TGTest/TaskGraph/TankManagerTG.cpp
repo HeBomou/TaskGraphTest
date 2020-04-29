@@ -83,17 +83,6 @@ struct TestTankTaskAA {
     }
 };
 
-template <typename... Args>
-string string_format(const string& format, Args... args) {
-    size_t size = 1 + snprintf(nullptr, 0, format.c_str(), args...);  // Extra space for \0
-    // unique_ptr<char[]> buf(new char[size]);
-    char* bytes = new char[size];
-    snprintf(bytes, size, format.c_str(), args...);
-    string res(bytes);
-    delete[] bytes;
-    return res;
-}
-
 void ATankManagerTG::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 
