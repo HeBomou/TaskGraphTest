@@ -72,7 +72,7 @@ void AWorldJF::Tick(float DeltaTime) {
     // Spawn
     if (m_spawnTimer < 0) {
         m_spawnTimer += m_spawnRecoverTime;
-        for (uint32 i = 0; i < 0; i++) {
+        for (uint32 i = 0; i < 40; i++) {
             auto tank = world->SpawnActor<ATestEnemy>(FVector(FMath::RandPointInCircle(1500), 0) + GetActorLocation(), FRotator());
             if (tank)
                 m_tanks.Add(tank);
