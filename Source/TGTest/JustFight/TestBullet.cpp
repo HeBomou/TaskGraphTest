@@ -23,8 +23,8 @@ ATestBullet::ATestBullet()
     // Bullet Movement
     m_bulletMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("BulletTGMovement0"));
     m_bulletMovement->UpdatedComponent = RootComponent;
-    m_bulletMovement->InitialSpeed = 1000.f;
-    m_bulletMovement->MaxSpeed = 1000.f;
+    m_bulletMovement->InitialSpeed = 3000.f;
+    m_bulletMovement->MaxSpeed = 3000.f;
     m_bulletMovement->bRotationFollowsVelocity = true;
     m_bulletMovement->bShouldBounce = false;
     m_bulletMovement->ProjectileGravityScale = 0.f;

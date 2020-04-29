@@ -32,6 +32,6 @@ class TGTEST_API ATestEnemy : public APawn {
 
     virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-    void MyTick(float dT);
-    void MyTaskTick(float dT);
+    virtual void MyTick(float dT);
+    virtual void MyTaskTick(float dT);
 };
