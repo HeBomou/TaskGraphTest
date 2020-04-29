@@ -35,7 +35,7 @@ ATestBullet::ATestBullet()
 
 void ATestBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
     if ((OtherActor != NULL) && (OtherComp != NULL) && (OtherActor != this)) {
-        OtherActor->TakeDamage(12.f, FDamageEvent(), NULL, NULL);
+        OtherActor->TakeDamage(50.f, FDamageEvent(), NULL, NULL);
     }
     Destroy();
 }

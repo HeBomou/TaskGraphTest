@@ -59,6 +59,10 @@ void ATestEnemy::MyTick(float dT) {
         if (world)
             world->SpawnActor<ATestBullet>(GetActorLocation() + m_shootDir * 220.f, m_shootDir.Rotation());
     }
+
+	// Dead
+	if (m_health <= 0)
+		Destroy();
 }
 
 void ATestEnemy::MyTaskTick(float dT) {

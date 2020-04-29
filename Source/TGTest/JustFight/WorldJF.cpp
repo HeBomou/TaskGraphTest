@@ -63,8 +63,11 @@ void AWorldJF::Tick(float DeltaTime) {
     for (auto evt : evts)
         evt->Complete();
     // MyTick
-    for (auto tank : tanks)
+    for (auto tank : tanks) {
         tank->MyTick(DeltaTime);
+		if (tank->m_health <= 0)
+			m_tanks.Remove(tank);
+	}
 
     // Spawn
     if (m_spawnTimer < 0) {
